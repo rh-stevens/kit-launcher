@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kit Launcher</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single centred card, like a kit-box side label — name on top, two actions beneath. */
+:root{
+  --bg:#f3f1ec; --fg:#1e1f1b; --muted:#6b6d63; --panel:#ffffff; --line:#d9d6cc;
+  --accent:#4d5b3a; --accent-fg:#ffffff; --accent2:#7b5ea7;
+  --display:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1b1c18; --fg:#ebe9e1; --muted:#9a9c90; --panel:#24261f; --line:#3a3c33; --accent:#9fb37e; --accent-fg:#161711; --accent2:#b9a3e0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1b1c18; --fg:#ebe9e1; --muted:#9a9c90; --panel:#24261f; --line:#3a3c33; --accent:#9fb37e; --accent-fg:#161711; --accent2:#b9a3e0; color-scheme:dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px;
+  display:flex;flex-direction:column;align-items:center}
+.card{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:28px 24px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font-size:clamp(22px,4vw,30px);line-height:1.15;font-weight:600;text-wrap:balance}
+.meta{font:400 13px/1.5 var(--mono);color:var(--muted);word-break:break-all}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.btn{flex:1 1 200px;min-width:0;text-align:center;text-decoration:none;font-weight:600;font-size:15px;padding:14px 16px;border-radius:5px;border:1px solid transparent;cursor:pointer}
+.btn.dt{background:var(--accent);color:var(--accent-fg)}
+.btn.ob{background:transparent;color:var(--fg);border-color:var(--accent2)}
+.btn:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.hint{font-size:13px;line-height:1.5;color:var(--muted);margin:0}
+input{width:100%;box-sizing:border-box;font:400 15px var(--display);padding:10px 12px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--fg)}
+ul{list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto;border-top:1px solid var(--line)}
+li{border-bottom:1px solid var(--line)}
+li a{display:block;padding:10px 4px;color:var(--fg);text-decoration:none}
+li a:hover{color:var(--accent)}
+</style></head><body>
+<main class="card" id="card">
+  <div class="eyebrow" id="eyebrow">Model Kits</div>
+  <h1 id="name">Kit launcher</h1>
+  <div class="meta" id="meta"></div>
+  <div class="actions" id="actions" hidden>
+    <a class="btn dt" id="dt" href="#">Open in DEVONthink</a>
+    <a class="btn ob" id="ob" href="#">Open in Obsidian</a>
+  </div>
+  <p class="hint" id="hint"></p>
+  <div id="browse" hidden>
+    <input id="q" type="search" placeholder="Search kits…" aria-label="Search kits">
+    <ul id="list"></ul>
+  </div>
+</main>
+<script>
+const KITS = {"7DA766E1-1847-4175-9894-E3848952CF68":["30-Cwt 4x2 GS Truck","30-Cwt 4x2 GS Truck - Airfix"],"518A9963-86CB-4E84-9357-AFC3C5BCAA7E":["8TH ARMY DESERT RAT WITH THOMPSON","8TH ARMY DESERT RAT WITH THOMPSON - Mitches Military Models"],"7221A8BD-2424-44EC-ADF3-C749305DC321":["A-10C 'Blacksnakes'","A-10C -Blacksnakes- - Italeri"],"671A8582-C365-4997-842B-2632837BA8AE":["AFV Crew","AFV Crew - Master Box"],"268CC32F-C8BE-4D25-B0AD-95C3492ADC46":["Alvis FV603 Saracen Mk.5","Alvis FV603 Saracen Mk.5 - Airfix"],"9DD93571-ADC9-4B41-91EF-B81F1CFD3EE8":["Alvis FV622 Stalwart Mk.2","Alvis FV622 Stalwart Mk.2 - Airfix"],"FF5BA0F6-BDD4-4A23-94CF-0A24D7AD4C96":["Alvis Stalwart REME Fitters vehicle","Alvis Stalwart REME Fitters vehicle - Accurate Armour"],"8F5185F5-71C4-4DE5-B22E-B64DD910575F":["Austin K2/Y Ambulance","Austin K2Y Ambulance - Airfix"],"8052FFC8-FE1F-4A0B-BB1F-66C580EC0A79":["Avro Lancaster B.Mk.I/III","Avro Lancaster B.Mk.I III - Border Model"],"37378E82-79A2-4702-B327-C1C19EDCA784":["Avro Vulcan B.2","Avro Vulcan B.2 - Airfix"],"DC86C8F5-3A7A-45A7-B141-1BF199CDDCBB":["BAe Hawk XX154 'First & Last'","BAe Hawk XX154 First & Last - Airfix"],"23C802D0-8F45-4592-BA56-88A6D1F8799B":["BedFord MK/MJ 4-Tonne 4x4 GS (Early tyres)","BedFord MK-MJ 4-Tonne 4x4 GS (Early tyres) - Accurate Armour"],"FA127783-242E-40B9-969A-93DAD0884DAB":["Bergepanther Ausf. D","Bergepanther Ausf. D - Takom"],"9B72AF07-94E7-4E25-991E-DA97417B1F80":["Boeing Chinook HC.1","Boeing Chinook HC.1 - Airfix"],"C7861157-54B7-465D-B52E-A4ACAB125320":["Bristol Beaufighter TF.X","Bristol Beaufighter TF-X - Airfix"],"88B80C78-F9E0-4649-AF5D-AB9FAF0C40FB":["Bristol Blenheim Mk.I","Bristol Blenheim - Airfix"],"D0BFE054-6A48-42B5-BAF2-7CB59159D5D5":["CVR(T) FV101 Scorpion","British CVR(T) FV101 Scorpion - AFV Club"],"73ED7488-7A57-4839-9EFD-5A5D5F718B26":["Canadair Sabre F.4","Canadair Sabre F.4 - Airfix"],"2774F5FE-7E08-4761-A6EF-0244A2759A91":["Carbon Fibre Aerial Rods (all scales) 100mm (Qty-5)","Carbon Fibre Aerial Rods (all scales) 100mm (Qty-5) - Accurate Armour"],"B9911AA2-28A7-4C58-A819-48A7B4E14FA8":["Challenger 2 TES","Challanger 2 TES - Ryefield Models"],"4A1E57D4-A06F-4589-A037-834A09BAE49E":["Chevrolet 15 CWT","Chevrolet 15 CWT - Italeri"],"9337E628-F64F-4D08-AB51-6EACAB202A78":["Chieftain ARRV Mk-7","Chieftain ARRV Mk-7 - Accurate Armour"],"73EE0C27-F59B-41BC-A1F9-43F62B0B33A7":["Chieftain ARV Mk 5","Chieftain ARV Mk 5 - Accurate Armour"],"D609CC0C-8226-4DAE-AA76-69708232506A":["Chieftain L60 Engine & TN12 Gearbox","Chieftain L60 Engine & TN12 Gearbox - Accurate Armour"],"23C23439-865C-481A-98AD-5B2122ACBA06":["Chieftain Mk.10","Chieftain Mk.10 - Takom"],"2F90091D-88CD-4826-BB5F-3928D1D84BCD":["Chieftain Mk.11","Chieftain Mk.11 - Takom"],"C2623F76-7307-4F90-900B-0D3E59FD8C0B":["Chieftain Mk.2","Chieftain Mk.2 - Takom"],"075B7D82-2331-49AC-87C5-C51F396685DB":["Chieftain Mk.5","Chieftain Mk.5 - Tamiya"],"DB17B34A-1972-4695-9223-2FBF6CBD1D55":["Chieftain Mk.5/P","Chieftain Mk.5P - Takom"],"97EF9D96-86E8-494C-9CA5-021CB5CDA2D0":["Chieftain Replacement Resin Track","Chieftain Replacement Resin Track - Accurate Armour"],"ECC8A06A-F11D-4CBD-A1C3-ACE6DCBFA370":["Citroën Traction 11CV","Citroën Traction 11CV - Tamiya"],"77857966-0D8D-4555-B6ED-6BDA591E8FBA":["Cromwell Mk.VI","Cromwell Mk VI - Airfix"],"E2C38D36-E12C-4709-A761-F88C7219227E":["Curtiss P-40B Warhawk","Curtiss P-40B Warhawk - Airfix"],"30454D81-38FA-4346-B7B8-DB1B20E2FAC1":["D-Day Duo","D-Day Duo - Airfix"],"FDD3EA64-B731-4EB9-9AA1-EA080B9428DB":["De Havilland Mosquito B.XVI","De Havilland Mosquito B Mk.XVI - Airfix"],"A0CF6EAB-C366-4909-B43F-D28A0187039F":["De Havilland Mosquito Mk.IV","De Havilland Mosquito Mk.IV - Revell"],"107ACB4C-5866-4A50-9214-E964AB8FBFC1":["De Havilland Vampire F.3","De Havilland Vampire F.3 - Airfix"],"D5299AC5-B9B9-4522-A040-C6BC951875FF":["Defender 110 Hardtop","Defender 110 Hardtop - HobbyBoss"],"A0F66F09-231A-4B7D-88FF-16220C610DF7":["Defender XD 'Wolf' W.M.I.K.","Defender XD 'Wolf' W.M.I.K. - HobbyBoss"],"AC1517A9-EE63-49CD-A211-42415BF8D209":["FODEN 6x6 Recovery Op'HERRICK","FODEN 6x6 Recovery Op'HERRICK - Accurate Armour"],"72928D0F-ACD6-40B8-B543-3340E06372DD":["FV432 81mm Mortar Carrier Conversion","FV432 81mm Mortar Carrier Conversion - Accurate Armour"],"17235CC0-8476-432D-98A0-6E2E7E1A444C":["FV432 Ambulance Conversion","FV432 Ambulance Conversion - Accurate Armour"],"8BECB0A4-2D9E-49E7-9C6E-99AF5D80400A":["FV432 Mk.2/1","FV432 Mk2-1 -Takom"],"A4507255-CC3E-458E-9948-028A27A8D7E4":["FV434 REME Fitters Vehicle","FV434 REME Fitters Vehicle - Accurate Armour"],"93122343-6A5E-4DB3-91BC-90F8B50325F6":["Ferret Mk 1/2 British Post War Scout Car","Ferret Mk 1or2 British Post War Scout Car - Accurate Armour"],"F4DDDC58-16FB-4DD3-B2F7-14606F6DB0DE":["Ferret Mk. 2 Basic","Ferret Mk. 2 Basic - Accurate Armour"],"E1F80A3A-588F-4688-A3AA-C3EEA389768C":["Flygvapnet 100","Flygvapnet 100 - Airfix"],"C9ABEFAC-A2BF-4712-B9BA-32442A1E775E":["Foden DROPS Op' Herrick","Foden Drops - Accurate Armour"],"6C7044C9-E6CF-4DC8-92E4-831D351D49F9":["Ford Escort RS1800 Mk.II","Ford Escort RS1800 Mk.II - Italeri"],"511E152C-C7C1-4206-B3A4-BBDC712D4BC4":["88mm Gun Flak36","German 88mmGun Flak36 - Border"],"3DF99F14-F035-4F51-ADBE-349D0F9DC295":["Sd.Kfz. 251/1","German Handmag Sdkfz2511 - Tamiya"],"93726489-AE03-40F1-9D91-55AAF5342209":["Gloster Meteor FR.9","Gloster Meteor FR.9 - Airfix"],"D1CA89EE-C98C-4131-8BE8-469875B66326":["HMS Amethyst 1949","HMS Amethyst 1949 - Starling Models"],"68B86C1D-C434-44BE-AB4A-23B5707D058F":["HMS Belfast","HMS Belfast - Airfix"],"5560FDE8-F7C7-4CDC-80AE-3AE090E8703D":["HMS Devonshire","HMS Devonshire - Airfix"],"C94FECB1-3DC2-4496-8056-2A6066063A1E":["HMS Fearless","HMS Fearless - Airfix"],"09DE7D8C-6623-4BA2-9307-AB8DA5F342A9":["HMS Glamorgan 1982","HMS Glamorgan 1982 - Starling Models"],"7A9C0BCD-1617-4162-B9DD-164583A07E63":["HMS King George V","HMS King George V - Airfix"],"A81593FC-BAAA-4A0C-8213-A04DFE03E99E":["HMS Nelson","HMS Nelson - Airfix"],"F4F4D444-84B3-4784-B09C-A7B54F18FCA6":["HMS Suffolk","HMS Suffolk - Airfix"],"E5B3CB8A-0A51-4542-A8E1-CD2CA49A2A95":["HUSKY TSV","HUSKY TSV - Meng Model"],"CE3DE97C-3126-4661-A9C9-5E30AA816EF1":["Handley Page Victor B.Mk.2[BS]","Handley Page Victor B.Mk.2-BS- - Airfix"],"615B9BA7-DDC4-49EF-A481-D6E3F2AA514E":["Hawker Hurricane Mk.I Tropical","Hawker Hurricane Mk.I Tropical - Airfix"],"E5147B0A-FDAA-4CEB-83CD-7F77132C275B":["Heavy Battle Tank Mk V","Heavy Battle Tank Mk V - Takom"],"F9AFDD1D-93AE-41EC-9173-D7230795771F":["Humber Scout car RECCE","Humber Scout car RECCE - Accurate Armour"],"53BCCA43-4C73-46B5-BBAE-46DD96204E5F":["Jackal 1 High Mobility Weapon Platform","Jackal 1 High Mobility Weapon Platform - HobbyBoss"],"DBDF4760-3E89-4794-B7D7-07F9DF43C141":["Jagdpanther G1","Jagdpanther G1 - Takom"],"A9C9C77D-3BE2-493A-B084-521FEEEC443B":["Jagdpanther G2 Full Interior","Jagdpanther G2 Sd.Kfz. 173 - Takom"],"924FD5BE-A693-4A39-9DFF-A23315717569":["Kübelwagen Type 82","Kübelwagen Type 82 - Tamiya"],"F4A2B33A-BF1C-4008-A90D-92A647B5A0C5":["LRDG Command Car","LRDG Command Car - Tamiya"],"22C091A0-E6DB-493E-81EE-4DBE452A3C23":["LRDG Figure","LRDG Figure - Mitchell Military Models"],"175E9C35-9A77-4C75-BF46-EA48968E5B71":["Land Rover 109' LWB","Land Rover 109' LWB - Italeri"],"0F45F13E-26C3-44AB-8901-1C534500EC05":["Land Rover 88","Land Rover 88 - AK Interactive (AK35013)"],"46DE1DE2-3512-4B25-8B60-78E4BDA24D6B":["Land Rover 88","Land Rover 88 - AK"],"E8E19456-D640-4977-936C-9AEF6D36C9AE":["Land Rover XD TUM G.S. Soft-Top","Land Rover XD TUM G.S. Soft-Top - Accurate Armour"],"0620C46E-3106-4DC8-9147-9F9180A2BA5A":["Land Rover XD TUM Op'-Telic Patrol","Land Rover XD TUM Op'-Telic Patrol - Accurate Armour"],"2D0EF5F2-D31A-44AB-B4BB-D5505751106F":["Lead Wire - Round Ø 0,3 mm x 120 mm","Lead Wire - Round Ø 0,3 mm x 120 mm - ASK"],"49FDB495-72DD-4678-9558-600F326014BD":["Lead Wire - Round Ø 0,4 mm x 120 mm","Lead Wire - Round Ø 0,4 mm x 120 mm - ASK"],"45A05C8F-0EF3-4BC1-94DC-D97E37C7300E":["M12 GMC","M12 GMC - Airfix"],"D826E0DF-2CC4-4974-A589-DEED766D9DF9":["M1240A1 M-ATV","M1240A1 M-ATV - Rye Field Model"],"F514C5BB-C80C-4092-98AE-87D6B94E3979":["M3 Grant","M3 Grant - Takom"],"FC1519C2-E09C-423D-9096-292191E8CDF8":["M7 Priest","M7 Priest - Airfix"],"2E2137BA-F408-4CFD-A6F2-1F09A1D0B515":["McDonnell Douglas F-4J Phantom II","McDonnell Douglas F-4J Phantom II - Tamiya"],"D3BFFC1F-8D81-4690-AC68-7B4178845D52":["Messerschmitt Me 410A-3","Messerschmitt Me 410A-3 - Airfix"],"4412ECF5-27E9-4E14-91D8-B3B1D788ECE9":["Mtl. Zgkrwg. 8t, Sd.Kfz. 7","Mtl. Zgkrwg. 8t, Sd.Kfz. 7 - Das Werk"],"C87AE7EE-16DB-4E12-BF12-4EEC54E1BFA1":["North American F-86F Sabre","North American F-86F Sabre - Airfix"],"BD414493-E3EC-4136-ADB0-DC894AE86F3B":["PaK 40 / L46","PaK 40 - L46 - Tamiya"],"4C813DA5-25E1-44FB-88D3-44F725A6BB47":["Panther Ausf. A","Panther Ausf. A - Takom"],"C0687174-4E24-41F4-8D7B-88354CEF8767":["Panzer III Ausf.J","Panzer III Ausf.J - Das Werk"],"AD6A079E-F797-4517-8902-B803B3832483":["Panzerkampfwagen IV Ausf. F / Sd.Kfz. 161","Panzerkampfwagen IV Ausf. F Sd.Kfz. 161 - Tamiya"],"63AF4A17-D46F-4300-BFA7-1684396EC47E":["Prince of Wales","Prince of Wales - Tamiya"],"0307259C-CC43-496E-9153-A37ED035498A":["Rigging - Super Fine 0.01mm","Rigging - Super Fine 0.01mm - Ammo by Mig Jimenez"],"B92E238A-1170-434C-AF28-F9686A957CB6":["Land Rover Pink Panther","S.A.S. Land Rover Pink Panther - Tamiya"],"2434ED75-B50C-4D7A-9F65-9A6A1ACA42C2":["SAS 110 DPV Crew Set #1","SAS 110 DPV Crew Set -1 - Accurate Armour"],"1BDF955D-89EC-4466-88AB-8629F3A874B3":["SAS Jeep","SAS Jeep - Tamiya"],"60B699C0-DA1C-4328-98A0-BAAC039B5760":["SAS Land Rover 110 DPV","SAS Land Rover 110 DPV - Accurate Armour"],"397E57B9-8871-4B57-B128-548AE576D6E8":["SAS Longline Light Strike Vehicle","SAS Longline Light Strike Vehicle - Accurate Armour"],"A1B947B1-04CC-4BA7-9BAD-10240380C174":["Saxon Mk-1 APC","Saxon - Accurate Armour"],"56828FA9-2482-4A59-9101-CC369703C060":["Schwimmwagen Type 166","Schwimmwagen Type 166 - Tamiya"],"09309261-2EED-48B3-A833-EBBFCD64823F":["Sherman VC Firefly","Sherman VC - Rye Field Model"],"5703D76C-E825-4800-935C-3480D6B1DD90":["Spitfire Mk 1a","Spitfire Mk 1a - Eduard"],"137630F8-F368-479A-A170-2D9A90289E1F":["Supermarine Spitfire Mk I/II","Spitfire Mk.II - Revell"],"9B6DA6E6-3AB4-440B-8F34-B5EC444698A1":["Spitfire Mk.Vc","Spitfire Mk.Vc - Eduard"],"E9FB7349-541D-4B31-A184-DDCB44A38D34":["Spitfire Story: The Sweeps","Spitfire Story- The Sweeps - Eduard"],"20A65847-258B-4289-A159-243D8AF128F1":["StuG III Ausf.G early","StuG III Ausf.G early - Das Werk"],"8594E6CC-66D9-4253-B8F1-BBBE1EC7C802":["Sturmtiger","Sturmtiger - Rye Field Model"],"FEDD9D91-8548-49CD-83DB-2ED06EA811ED":["Supermarine Spitfire Mk.IXc","Supermarine Spitfire Mk.IXc - Airfix"],"02250D02-644B-4DDB-9CD6-CC1253B74ADA":["Tank Crew","Tank Crew - MiniArt (35121)"],"FD8F20A3-6D02-452E-98C5-3A439D7F16B2":["Tank Crew","Tank Crew - MiniArt (35332)"],"20EE70AA-BEE9-448F-BD3C-F7B7CD85C5DD":["Tornado GR.1","Tornado GR.1 Gulf War - Revell"],"D8D6C775-07EB-40CB-84A3-62B07AD51109":["Tractor, 4x4 Field Artillery (C8 Mk.II Early)","Tractor, 4x4 Field Artillery (C8 Mk.II Early) - Gecko Models"],"588304EE-4288-480A-8D83-45048AD08776":["Triumph 3HW","Triumph 3HW - Italeri"],"D2B4AC00-3003-4D40-8CDA-28A28616DF5B":["Type 45 Destroyer","Type 45 Destroyer - Airfix"],"51843890-FE05-4CED-BE71-6F5797BDE5A8":["U-Boat SM U9","U-Boat SM U9 - Das Werk"],"81C52D64-B8C4-424F-A852-6D639CBC92C7":["Universal Carrier Mk.II","Universal Carrier Mk.II - Tamiya (35249)"],"644309CC-82F1-4315-A95F-BDD8AF51E5DC":["Universal Carrier Mk.II","Universal Carrier Mk.II - Tamiya"],"D45629D7-6C6A-4E38-B3F8-EE6FAC9653DC":["Vespa 125 'Primavera'","Vespa 125 Primavera - Italeri"],"6F9C583C-ED39-412A-98E9-276BA3DCF3A6":["Vickers Valiant B(PR)K.1","Vickers Valiant B(PR)K.1 - Airfix"],"59B1EA79-1D67-4EB6-8E33-078E68EAAF6C":["Vosper 72' 6'' MTB 77","Vosper 72' 6'' MTB 77 - Italeri"],"5D2A7F96-4F69-4127-9D28-90CF3568F1F7":["WWII British Paratrooper with 2inch Mortar","WWII British Paratrooper with 2inch Mortar - Mitches Military Models"],"1F724351-4A91-41BF-94B4-E62A78866097":["Wasp Flamethrower Jeep","Wasp Flamethrower Jeep - Meng Model"],"76EDF2DC-5535-4B71-A8C1-5507DD9D0530":["Westland Lynx Mk.8","Westland Lynx Mk.8 - Revell"],"0086E369-CB0D-4A52-BF17-8982DF142E5C":["Westland Lysander Mk.I/Mk.III","Westland Lysander Mk.I-Mk.III - Airfix"],"6B266F7C-A87E-4FE9-AE8E-DDB5F1C550A5":["Westland Sea King HC.4","Westland Sea King - Airfix"],"49BAC55E-38D0-491B-A83E-F39326937B76":["Zündapp KS750 with Sidecar","Zundapp KS750 with Sidecar - Italeri"],"FEB192A2-61B3-48A9-B855-365DE397A24F":["¼-ton 4×4 G503 MB Utility Truck","¼-ton 4×4 G503 MB Utility Truck - Takom"]};
+const VAULT = 'my_obsidian_Vault';
+const dtLink = u => 'x-devonthink-item://' + u;
+const obLink = stem => 'obsidian://open?vault=' + VAULT + '&file=' + encodeURIComponent('Model Tracker/Kits/' + stem);
+const $ = id => document.getElementById(id);
+function render(){
+  let h = (location.hash||'').slice(1); let mode = '';
+  if (h.startsWith('dt-')) { mode='dt'; h=h.slice(3); } else if (h.startsWith('ob-')) { mode='ob'; h=h.slice(3); }
+  h = h.toUpperCase();
+  const kit = KITS[h];
+  if (!kit) { browse(); return; }
+  $('name').textContent = kit[0];
+  $('meta').textContent = kit[1];
+  $('dt').href = dtLink(h); $('ob').href = obLink(kit[1]);
+  $('actions').hidden = false; $('browse').hidden = true;
+  if (mode) {
+    const target = mode==='dt' ? dtLink(h) : obLink(kit[1]);
+    $('hint').textContent = 'Opening in ' + (mode==='dt' ? 'DEVONthink' : 'Obsidian') + '… If nothing happens, use the button above (your browser may ask once to allow it).';
+    try { location.href = target; } catch(e) {}
+  } else {
+    $('hint').textContent = 'Choose where to open this kit. Both apps must be installed on this Mac.';
+  }
+}
+function browse(){
+  $('name').textContent = 'Kit launcher'; $('meta').textContent = Object.keys(KITS).length + ' kits';
+  $('actions').hidden = true; $('browse').hidden = false;
+  $('hint').textContent = 'Pick a kit to open it in DEVONthink or Obsidian. Links from Notion jump straight to a kit.';
+  fill('');
+}
+function fill(q){
+  q = q.toLowerCase();
+  const ul = $('list'); ul.innerHTML = '';
+  Object.entries(KITS).filter(([u,k]) => !q || k[1].toLowerCase().includes(q)).sort((a,b)=>a[1][1].localeCompare(b[1][1]))
+    .forEach(([u,k]) => { const li=document.createElement('li'); const a=document.createElement('a'); a.href='#'+u; a.textContent=k[1]; li.appendChild(a); ul.appendChild(li); });
+}
+$('q').addEventListener('input', e => fill(e.target.value));
+window.addEventListener('hashchange', render);
+render();
+</script>
+
+</body></html>
